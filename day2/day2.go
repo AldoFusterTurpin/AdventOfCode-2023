@@ -10,8 +10,9 @@ import (
 
 func main() {
 	folder := "input_files"
-	fileName := "input.txt"
-	fileContent, err := os.ReadFile(folder + "/" + fileName)
+	fileName := "input"
+	fileExtension := ".txt"
+	fileContent, err := os.ReadFile(folder + "/" + fileName + fileExtension)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -19,18 +20,25 @@ func main() {
 	s := string(fileContent)
 	s = strings.TrimSpace(s)
 	lines := getLinesFromFileContent(s)
-	fmt.Println(lines)
+	// fmt.Println(lines)
 
-	// sum, err := GetSumOfCalibrationValues(lines) // Part 1
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// fmt.Printf("result is %v: ", sum)
+	sum := sumOfIDsOfThePossibleGames(lines) // Part 1
+	fmt.Printf("sum is %v: ", sum)
 }
 
 func getLinesFromFileContent(s string) []string {
 	return strings.Split(s, "\n")
+}
+
+func sumOfIDsOfThePossibleGames(games []string) int {
+	sum := 0
+	for i, game := range games {
+		gameID := i + 1
+		if isGamePossible(game) {
+			sum += gameID
+		}
+	}
+	return sum
 }
 
 func isGamePossible(game string) bool {
@@ -41,9 +49,8 @@ func isGamePossible(game string) bool {
 	gameSlice := strings.Split(game, ":")
 	// ["Game 1", "3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"]
 
-	gameId := gameSlice[0]
-	//Game 1
-	fmt.Println("gameId: ", gameId)
+	// gameId := gameSlice[0]
+	//"Game 1"
 
 	subsetsStr := gameSlice[1]
 	// "3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"
