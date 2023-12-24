@@ -22,7 +22,8 @@ func main() {
 	lines := getLinesFromFileContent(s)
 	// fmt.Println(lines)
 
-	sum := sumOfIDsOfThePossibleGames(lines) // Part 1
+	// sum := sumOfIDsOfThePossibleGames(lines) // Part 1
+	sum := getSumOfPowersOfGames(lines) // Part 2
 	fmt.Printf("sum is %v: ", sum)
 }
 
@@ -44,7 +45,6 @@ func sumOfIDsOfThePossibleGames(games []string) int {
 func isGamePossible(game string) bool {
 	// Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
 	game = strings.TrimSpace(game)
-	// game = strings.ReplaceAll(game, " ", "")
 
 	gameSlice := strings.Split(game, ":")
 	// ["Game 1", "3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"]
