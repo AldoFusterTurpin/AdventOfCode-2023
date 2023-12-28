@@ -4,13 +4,18 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
+var (
+	multipleSpacesRegex = regexp.MustCompile(`\s+`)
+)
+
 func main() {
 	folder := "input_files"
-	fileName := "sample"
+	fileName := "input"
 	fileExtension := ".txt"
 	fileContent, err := os.ReadFile(folder + "/" + fileName + fileExtension)
 	if err != nil {
@@ -20,74 +25,83 @@ func main() {
 	s := string(fileContent)
 	s = strings.TrimSpace(s)
 
-	// sum := getSumOfPartNumbers(s) // part 1
 	sum := getTotalScratchcardsPuntuation(s)
-	fmt.Printf("sum of gear ratios is: %v ", sum)
+	fmt.Printf("total points %v ", sum)
+}
+
+type Card struct {
+	id             int
+	winningNumbers []int
+	numbersWeHave  []int
+}
+
+func convertStringToCards(s string) []Card {
+	var cards []Card
+	lines := strings.Split(s, "\n")
+	for _, line := range lines {
+		line = multipleSpacesRegex.ReplaceAllString(line, " ")
+		line = strings.TrimSpace(line)
+
+		// "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53"
+		slice := strings.Split(line, ":")
+		// ["Card 1",  "41 48 83 86 17 | 83 86  6 31 17  9 48 53"]
+
+		cardString := slice[0]
+		// "Card 1"
+
+		cardStringSplitted := strings.Split(cardString, " ")
+		// ["Car", "1"]
+
+		cardIdStr := cardStringSplitted[1]
+		// "1"
+
+		cardId, err := strconv.Atoi(cardIdStr)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		rightPart := slice[1]
+		// rightPart is "41 48 83 86 17 | 83 86  6 31 17  9 48 53"
+
+		rightPartSplitted := strings.Split(rightPart, "|")
+		// rightPartSplitted ["41 48 83 86 17", "83 86  6 31 17  9 48 53"]
+
+		winningNumbersStr := rightPartSplitted[0]
+		// "41 48 83 86 17"
+		winningNumbers := convertStringToSliceOfInts(winningNumbersStr)
+
+		numbersWeHaveStr := rightPartSplitted[1]
+		// "83 86  6 31 17  9 48 53"
+		numbersWeHave := convertStringToSliceOfInts(numbersWeHaveStr)
+
+		c := Card{
+			id:             cardId,
+			numbersWeHave:  numbersWeHave,
+			winningNumbers: winningNumbers,
+		}
+		cards = append(cards, c)
+	}
+
+	return cards
 }
 
 func getTotalScratchcardsPuntuation(s string) int {
+	cards := convertStringToCards(s)
 	sum := 0
-	lines := strings.Split(s, "\n")
-	for _, line := range lines {
-		sum += getCardPuntuation(line)
+
+	for _, card := range cards {
+		sum += card.getPuntuation()
 	}
 	return sum
 }
 
-func getCardPuntuation(line string) int {
-	// "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53"
-	slice := strings.Split(line, ":")
-	// ["Card 1",  "41 48 83 86 17 | 83 86  6 31 17  9 48 53"]
-
-	rightPart := slice[1]
-	// rightPart is "41 48 83 86 17 | 83 86  6 31 17  9 48 53"
-
-	rightPartSplitted := strings.Split(rightPart, "|")
-	// rightPartSplitted ["41 48 83 86 17", "83 86  6 31 17  9 48 53"]
-
-	winningNumbers := rightPartSplitted[0]
-	// "41 48 83 86 17"
-
-	numbersWeHave := rightPartSplitted[1]
-	// "83 86  6 31 17  9 48 53"
-
-	winningNumbersMap := mapFromWinningNumbers(winningNumbers)
-	return getPuntuationForCard(numbersWeHave, winningNumbersMap)
-}
-
-// mapFromWinningNumbers receives an string like "41 48 83 86 17" and return a map (used as a set)
-// of the unique numbers.
-func mapFromWinningNumbers(winningNumbers string) map[int]bool {
-	m := make(map[int]bool)
-
-	winningNumbers = strings.TrimSpace(winningNumbers)
-	winningNumbersSlice := strings.Split(winningNumbers, " ")
-	for _, s := range winningNumbersSlice {
-		// some numbers include more than one space,
-		// we need to check for them and skip
-		s = strings.TrimSpace(s)
-		if s == "" {
-			continue
-		}
-
-		v, err := strconv.Atoi(s)
-		if err != nil {
-			// In general, I would return the error and handle it outside but I assume clean input here for simplification.
-			log.Fatal(err)
-		}
-
-		m[v] = true
-	}
-	return m
-}
-
-func getPuntuationForCard(numbersWeHaveStr string, winningNumbersMap map[int]bool) int {
-	numbersWeHaveStr = strings.TrimSpace(numbersWeHaveStr)
-	numbersWeHave := convertStringToSliceOfInts(numbersWeHaveStr)
+func (card Card) getPuntuation() int {
 	firstMatch := true
 	puntuation := 0
 
-	for _, v := range numbersWeHave {
+	winningNumbersMap := getUniqueWinningNumbers(card.winningNumbers)
+
+	for _, v := range card.numbersWeHave {
 		if winningNumbersMap[v] {
 			if firstMatch {
 				puntuation = 1
@@ -97,7 +111,16 @@ func getPuntuationForCard(numbersWeHaveStr string, winningNumbersMap map[int]boo
 			firstMatch = false
 		}
 	}
+
 	return puntuation
+}
+
+func getUniqueWinningNumbers(allWinningNumbers []int) map[int]bool {
+	uniqueWinningNumbers := make(map[int]bool)
+	for _, v := range allWinningNumbers {
+		uniqueWinningNumbers[v] = true
+	}
+	return uniqueWinningNumbers
 }
 
 func convertStringToSliceOfInts(numbers string) []int {
@@ -106,16 +129,9 @@ func convertStringToSliceOfInts(numbers string) []int {
 
 	numbersSLiceStr := strings.Split(numbers, " ")
 	for _, s := range numbersSLiceStr {
-		// some numbers include more than one space,
-		// we need to check for them and skip
-		s = strings.TrimSpace(s)
-		if s == "" {
-			continue
-		}
-
 		v, err := strconv.Atoi(s)
 		if err != nil {
-			// In general, I would return the error and handle it outside but I assume clean input here for simplification.
+			// for simplification...
 			log.Fatal(err)
 		}
 
