@@ -29,6 +29,12 @@ go build
 ./dayN
 ```
 
+### Go is awesome
+I use the great [embed](https://pkg.go.dev/embed) package to include a huge string in my unit tests, which is pretty nice for better readability and ensure my unit tests are not touching I/O (as the string is included in the binary when using the embed package 👌).
+
+Do ctrl + f with "//go:embed" to see examples.
+
+### Considerations
 #### Day1 considerations
 For the day1, I followed an inside-out approach, starting from the details of the problem and building small functions in a TDD way from scratch, obtaining a fast feedback loop between the Red and the Green steps (advantage). 
 
@@ -55,6 +61,13 @@ For the whole part 2, I just decided to revisit my solution for part 1 and dupli
 I thik despite the fact I was not doing TDD in a strict form, the fact that I was following an outside-in approach writing really small functions at each step just focusing on one thing at a time helped me to get the solution at the first try. 
 
 Last note: I could have used regex to extract the values of the subsets, but I found the iterative approach of the "split" really straightforward and easy to follow. I could have used structs to represent each of the games instead of plain strings but it was really easy to follow using simple strings. Let's see what I decide for the next problem....
+
+#### Day3 considerations
+Sometimes I use as input for my unit tests an string when I should/could use directly primitives from the language (like [][]rune or []int) but it is a lot easier to copy + paste from the problem statement rather than converting it. In other words, I could simply call convertStringToMatrix() just once and pass arround [][]rune rather than converting twice from string to [][]rune, but I want to copy + paste easily and the effort is not worth right now (not enough time to do so now...).
+
+In the getGearRatioOfGear() function (check also getGearRatioOfGear.png), I am sure I could have extracted the common behavior to a function and then just iterate over a number of relative indexes and delete a lot of the lines that exist. Nonetheless, as the code right now maps directly to the mental model to solve the problem, I thing it is good enough as I need to keep working in the problem of the next days. It does not affect the time complexity, so it is not that bad. Also, I know there are some redundant assignments in that function regarding x and y, but I prefer to repeat the assignment of those rather than look upper in the code to knwo what value had (eg: on line 85 of day3/day3_part2.go, I do not need to assign again the x, but I prefer to have both x and y assigned again before any check as it is more straightforward and clear).
+
+Lastly, I am almost sure there more clever ways to implement a solution to the problem, but the one I followed is the one I found easy to understand. Iterate once over the input to construct the map of Coordinates to the numbers and then iterate again the input and use that map to get the gear ratio of each gear.
 
 ### Interesting links
 [Runes in Go](https://exercism.org/tracks/go/concepts/runes)
