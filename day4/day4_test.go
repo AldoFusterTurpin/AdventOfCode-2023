@@ -40,3 +40,34 @@ func TestGetTotalScratchcardsPuntuation(t *testing.T) {
 		})
 	}
 }
+
+func TestGetTotalScratchcards(t *testing.T) {
+	type testCase struct {
+		name     string
+		input    string
+		expected int
+	}
+
+	testCases := []testCase{
+		{
+			name:     "sample",
+			input:    sample,
+			expected: 30,
+		},
+		{
+			name:     "full input",
+			input:    input,
+			expected: 5095824,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := getFinalNumberOfScratchcards(tc.input)
+
+			if got != tc.expected {
+				t.Fatalf("expected %v, but got %v", tc.expected, got)
+			}
+		})
+	}
+}

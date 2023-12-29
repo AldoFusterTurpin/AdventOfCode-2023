@@ -25,8 +25,11 @@ func main() {
 	s := string(fileContent)
 	s = strings.TrimSpace(s)
 
-	sum := getTotalScratchcardsPuntuation(s)
-	fmt.Printf("total points %v ", sum)
+	// sum := getTotalScratchcardsPuntuation(s) // part 1
+
+	sum := getFinalNumberOfScratchcards(s) // part 2
+
+	fmt.Printf("result %v ", sum)
 }
 
 type Card struct {
@@ -92,6 +95,7 @@ func getTotalScratchcardsPuntuation(s string) int {
 	for _, card := range cards {
 		sum += card.getPuntuation()
 	}
+
 	return sum
 }
 
@@ -113,6 +117,19 @@ func (card Card) getPuntuation() int {
 	}
 
 	return puntuation
+}
+
+func (card Card) getMatchingNumbers() int {
+	n := 0
+	winningNumbersMap := getUniqueWinningNumbers(card.winningNumbers)
+
+	for _, v := range card.numbersWeHave {
+		if winningNumbersMap[v] {
+			n++
+		}
+	}
+
+	return n
 }
 
 func getUniqueWinningNumbers(allWinningNumbers []int) map[int]bool {

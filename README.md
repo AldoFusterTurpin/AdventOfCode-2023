@@ -69,5 +69,11 @@ In the getGearRatioOfGear() function (check also getGearRatioOfGear.png), I am s
 
 Lastly, I am almost sure there more clever ways to implement a solution to the problem, but the one I followed is the one I found easy to understand. Iterate once over the input to construct the map of Coordinates to the numbers and then iterate again the input and use that map to get the gear ratio of each gear.
 
+#### Day4 considerations
+No much to say. For the part 2, the easiest thing to do is to just use two maps, one for the counter of the cards and another for the matching numbers to lookup fast. We update the cards counter in order (from Card Id 0 to Card Id n-1, where n is the number of initial cards) taking into account the copies. 
+
+This one was easier for me than the day 3, maybe because I broke down the problem in small functions since the beginning and I was able to get it right at the second try for the Part 2 (in the first try I forgot to change the "getPuntuation" to "getMatchingNumbers", but I realised that fast, lucky me).
+
 ### Interesting links
 [Runes in Go](https://exercism.org/tracks/go/concepts/runes)
+[Go embed package](https://pkg.go.dev/embed)
