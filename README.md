@@ -74,6 +74,47 @@ No much to say. For the part 2, the easiest thing to do is to just use two maps,
 
 This one was easier for me than the day 3, maybe because I broke down the problem in small functions since the beginning and I was able to get it right at the second try for the Part 2 (in the first try I forgot to change the "getPuntuation" to "getMatchingNumbers", but I realised that fast, lucky me).
 
+#### Day 5 considerations
+Every type of seed, soil, fertilizer and so on is identified with a number.
+From source category to -> destination category. 
+
+How to convert a seed number (source) -> soil number (destination) ?
+THIS IS THE KEY PART
+
+Example 1:
+
+50 (destination range start), 98 (source range start), 2 (length)
+
+Source (seed) range->        [98, 99]
+
+                                 ↓    -> seed number 98 corresponds to soil number 50. seed number 99 corresponds to soil number 51
+
+Destination (soil) range ->  [50, 51]
+
+Important thing is the offset between source and destination -> | 98 - 50 | = 48.
+
+52 (destination range start), 50 (source range start), 48 (length)
+
+Source (seed) range->        [50, 51, 52, 53, ...] 
+
+                                     ↓            -> seed 53 corresponds to soil 55
+
+Destination (soil) range ->  [52, 53, 54, 55, 56, ...]
+
+The important thing is the offset between source and destination -> | 50 - 52 | = 2
+
+Source numbers that aren't mapped correspond to the same destination number.
+
+Mental note: I am surprised that I did the Part 1 on the first try (meaning first "submission" after all my unit tests where green). Even though Part 1 was a bit long, it was straightforward after mapping the objects of the statement into Go structs.
+
+I really prefer the more OOP way of approaching problems, even if they take a bit more, I obtain fewer bugs and the code is a lot easier to understand and test. Love it!
+##### How
+Interpret and build all the maps of [source category] to [destination category]
+For each seed of the list of seeds than need to be planted -> iterate over the maps to know to destination category for that type, which is used as input for the next map. 
+
+Once we have the "location" of each of the seeds (simply move the initial number through the maps), find the minnimum number.
+
+
 ### Interesting links
 [Runes in Go](https://exercism.org/tracks/go/concepts/runes)
 [Go embed package](https://pkg.go.dev/embed)
