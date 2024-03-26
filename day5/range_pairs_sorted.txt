@@ -1,0 +1,12 @@
+[
+{id: 14, startOfRange:  262615889, length: 327780505},
+{id: 12, startOfRange:  962820135, length: 133182317},
+{id: 0, startOfRange:  1132132257, length: 323430997},
+{id: 10, startOfRange: 1673679740, length: 6063698},
+{id: 6, startOfRange:  1695770806, length: 60470169},
+{id: 2, startOfRange:  2043754183, length: 4501055},
+{id: 18, startOfRange: 2147281339, length: 37466509},
+{id: 8, startOfRange:  2220296232, length: 251415938},
+{id: 4, startOfRange:  2539071613, length: 1059028389},
+{id: 16, startOfRange: 3602765034, length: 194858721}
+]

@@ -79,7 +79,6 @@ Every type of seed, soil, fertilizer and so on is identified with a number.
 From source category to -> destination category. 
 
 How to convert a seed number (source) -> soil number (destination) ?
-THIS IS THE KEY PART
 
 Example 1:
 
@@ -108,13 +107,20 @@ Source numbers that aren't mapped correspond to the same destination number.
 Mental note: I am surprised that I did the Part 1 on the first try (meaning first "submission" after all my unit tests where green). Even though Part 1 was a bit long, it was straightforward after mapping the objects of the statement into Go structs.
 
 I really prefer the more OOP way of approaching problems, even if they take a bit more, I obtain fewer bugs and the code is a lot easier to understand and test. Love it!
+
 ##### How
 Interpret and build all the maps of [source category] to [destination category]
 For each seed of the list of seeds than need to be planted -> iterate over the maps to know to destination category for that type, which is used as input for the next map. 
 
-Once we have the "location" of each of the seeds (simply move the initial number through the maps), find the minnimum number.
+Once we have the "location" of each of the seeds (simply move the initial number through the maps), find the minimum number.
+
+### Part 2 considerations
+The complexity behind this problem is to not iterate over the numbers in the range pairs as those are huge ranges. Instead, we should find a good algorithm that deletes overlaping ranges and/or descards parts of the range making use of the idea to always obtain the lowest number in the range (meaning that at some point we know we can stop working on that range). 
+
+Nevertheless, as I am doing this for fun and to practice my Go and Vim skills, I developed a brute force solution that makes use of concurrency primitives in Go, like channels and waitgroups. So 
 
 
-### Interesting links
+
+### Useful links
 [Runes in Go](https://exercism.org/tracks/go/concepts/runes)
 [Go embed package](https://pkg.go.dev/embed)

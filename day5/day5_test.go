@@ -9,6 +9,9 @@ import (
 //go:embed input_files/input.txt
 var input string
 
+//go:embed input_files/input2.txt
+var input2 string
+
 //go:embed input_files/sample.txt
 var sample string
 

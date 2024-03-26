@@ -1,0 +1,79 @@
+Result time using concurrency (wg + result channel)
+---------------------------------------------------
+How to execute an explicit unit test, example:
+go test -timeout 1h -run ^TestGetLowestLocationOfSeedPairsConcurrent$ github.com/AldoFusterTurpin/AdventOfCode-2023/day5
+
+unit tests with following inputs, with some printf which makes it slower:
+
+- input2, which result is 957727150, took:
+1646.182 seconds -> 27 minutes
+737.59s seconds with ranges breakRangesIntoSmallerOnes -> 12 minutes
+
+- input, which result is 1493866, took:
+6002.478 seconds -> 100 minutes -> 1,6 hour (no breaking ranges)
+4135.428 seconds -> 69 minutes -> 1,2 hour (breaking ranges once per range)
+3801.45 seconds -> 63 minutes (with breaking ranges until we have 100)
+4105.74s (with breaking ranges until we have 40)
+3772.109s -> 1000 ranges
+6536.22s -> 100_000 ranges
+3629.11s -> 5000 ranges
+3615.51s-> 10_000 ranges
+
+3741.24s  (with breaking ranges until we have 200)
+
+When desiredNumberOfRangePairs is 10_000:
+executing the binary without the intermediate printf calls:
+- For input.txt:
+$ go build && time ./day5
+lowest location of range of seed pairs is 1493866
+686.27s user 
+1.02s system 
+770% cpu 
+1:29.16 total
+
+- For input2.txt:
+lowest location of range of seed pairs is 957727150
+99.28s user 
+0.18s system 
+744% cpu 
+13.364 total
+
+
+When desiredNumberOfRangePairs is 5_000:
+executing the binary without the intermediate printf calls:
+- For input.txt:
+go build && time ./day5
+lowest location of range of seed pairs is 1493866
+685.52s user 
+1.97s system 
+721% cpu 
+1:35.27 total
+
+- For input2.txt:
+go build && time ./day5
+lowest location of range of seed pairs is 957727150
+99.06s user 
+0.27s system 
+711% cpu 
+13.955 total
+
+When desiredNumberOfRangePairs is 20_000
+executing the binary without the intermediate printf calls:
+- For input.txt:
+go build && time ./day5
+lowest location of range of seed pairs is 1493866
+684.86s user
+1.28s system 
+756% cpu 
+1:30.74 total
+
+-----------------------------------------------------------------------------------
+Ideas:
+Find the overlapping ranges to skip some of them.
+79 14 55 13
+
+              .............  
+    ............
+                             ........
+                      .........       
+0   10  20  30  40  50  60  70  80  90  100

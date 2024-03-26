@@ -10,6 +10,22 @@ import (
 	"unicode"
 )
 
+// desiredNumberOfRangePairs contains the desired number of range pairs we want our input to be broken into.
+// It is used to break the ranges into samller ones as we will execute each range in a different Go routine to
+// sepped up the whole process.
+//
+// The results are really impressive, we can process the "input.txt" in a little bit more than
+// one minute, and it contains really big ranges. When working in Go, 1 OS Thread can be handling many Go gorutines
+// (so the mapping is not 1 Thread -> 1 goroutine, it is 1 Thread -> n goroutines),
+// This is something the Go runtime is responsible of.
+// I simply love Go, for its concurrency model and for many other reasons.
+//
+// If desiredNumberOfRangePairs is less than 0, we will not break the ranges into smaller ones (when the ranges are small, we
+// don't want to break them into smaller ones as it is not useful, like in the "sample.txt").
+// For "input.txt" a good number is something close to 10_000 (check "notes.txt")
+// Ideally we could decide this variable at runtime, but this is a simplification.
+const desiredNumberOfRangePairs = 10_000
+
 var (
 	multipleSpacesRegex = regexp.MustCompile(`\s+`)
 )
@@ -23,19 +39,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s := string(fileContent)
-	sum := GetLowestLocationOfAllSeeds(s)
-	fmt.Printf("result %v ", sum)
+	sum := GetLowestLocationOfSeedPairsConcurrent(string(fileContent), desiredNumberOfRangePairs)
+	fmt.Printf("lowest location of range of seed pairs is %v\n", sum)
+}
+
+func GetLowestLocationOfAllSeeds(s string) int {
+	almanac := convertStringToAlmanac(s)
+	return almanac.getLowestLocationOfAllSeeds()
 }
 
 type MapFromSourceToDestination struct {
 	from        string // e.g: seed, soil
 	destination string // e.g: soil, fertilizer
 	ranges      []Range
-}
-
-type Range struct {
-	destinationRangeStart, sourceRangeStart, rangeLength int
 }
 
 func (m MapFromSourceToDestination) GetDestinationValue(source int) int {
@@ -48,6 +64,10 @@ func (m MapFromSourceToDestination) GetDestinationValue(source int) int {
 	}
 	// Any source numbers that aren't mapped correspond to the same destination number.
 	return source
+}
+
+type Range struct {
+	destinationRangeStart, sourceRangeStart, rangeLength int
 }
 
 type Almanac struct {
@@ -65,10 +85,10 @@ func (a Almanac) getLowestLocationOfAllSeeds() int {
 		}
 		locations = append(locations, source)
 	}
-	return getMin(locations)
+	return getMinFromSlice(locations)
 }
 
-func getMin(locations []int) int {
+func getMinFromSlice(locations []int) int {
 	first := true
 	min := 0
 
@@ -84,11 +104,6 @@ func getMin(locations []int) int {
 	return min
 }
 
-func GetLowestLocationOfAllSeeds(s string) int {
-	almanac := convertStringToAlmanac(s)
-	return almanac.getLowestLocationOfAllSeeds()
-}
-
 func convertStringToAlmanac(s string) Almanac {
 	almanac := Almanac{}
 
@@ -101,7 +116,6 @@ func convertStringToAlmanac(s string) Almanac {
 	seedsToBePlantedStr := seedsStrSplitted[1]
 	almanac.seedsToBePlanted = convertStringToSliceOfInts(seedsToBePlantedStr)
 	for _, line := range lines[1:] {
-		// if len(line) > 0 {
 		runes := []rune(line)
 		r := runes[0]
 		if unicode.IsLetter(r) {
@@ -126,7 +140,6 @@ func convertStringToAlmanac(s string) Almanac {
 			}
 			almanac.maps = append(almanac.maps, m)
 		}
-		// }
 	}
 	return almanac
 }
@@ -139,10 +152,9 @@ func convertStringToSliceOfInts(numbers string) []int {
 	for _, s := range numbersSLiceStr {
 		v, err := strconv.Atoi(s)
 		if err != nil {
-			// for simplification...
+			// Unexpected error, just for simplification...
 			log.Fatal(err)
 		}
-
 		result = append(result, v)
 	}
 	return result
