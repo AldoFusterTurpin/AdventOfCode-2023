@@ -67,7 +67,7 @@ Sometimes I use as input for my unit tests an string when I should/could use dir
 
 In the getGearRatioOfGear() function (check also getGearRatioOfGear.png), I am sure I could have extracted the common behavior to a function and then just iterate over a number of relative indexes and delete a lot of the lines that exist. Nonetheless, as the code right now maps directly to the mental model to solve the problem, I thing it is good enough as I need to keep working in the problem of the next days. It does not affect the time complexity, so it is not that bad. Also, I know there are some redundant assignments in that function regarding x and y, but I prefer to repeat the assignment of those rather than look upper in the code to knwo what value had (eg: on line 85 of day3/day3_part2.go, I do not need to assign again the x, but I prefer to have both x and y assigned again before any check as it is more straightforward and clear).
 
-Lastly, I am almost sure there more clever ways to implement a solution to the problem, but the one I followed is the one I found easy to understand. Iterate once over the input to construct the map of Coordinates to the numbers and then iterate again the input and use that map to get the gear ratio of each gear.
+Lastly, I am almost sure there are more clever ways to implement a solution to the problem, but the one I followed is the one I found easy to understand. Iterate once over the input to construct the map of Coordinates to the numbers and then iterate again the input and use that map to get the gear ratio of each gear.
 
 #### Day4 considerations
 No much to say. For the part 2, the easiest thing to do is to just use two maps, one for the counter of the cards and another for the matching numbers to lookup fast. We update the cards counter in order (from Card Id 0 to Card Id n-1, where n is the number of initial cards) taking into account the copies. 
@@ -90,7 +90,7 @@ Source (seed) range->        [98, 99]
 
 Destination (soil) range ->  [50, 51]
 
-Important thing is the offset between source and destination -> | 98 - 50 | = 48.
+The important thing is the offset between source and destination -> | 98 - 50 | = 48.
 
 52 (destination range start), 50 (source range start), 48 (length)
 
@@ -104,23 +104,52 @@ The important thing is the offset between source and destination -> | 50 - 52 | 
 
 Source numbers that aren't mapped correspond to the same destination number.
 
-Mental note: I am surprised that I did the Part 1 on the first try (meaning first "submission" after all my unit tests where green). Even though Part 1 was a bit long, it was straightforward after mapping the objects of the statement into Go structs.
-
-I really prefer the more OOP way of approaching problems, even if they take a bit more, I obtain fewer bugs and the code is a lot easier to understand and test. Love it!
+I really prefer the more OOP way of approaching problems, even if they take a bit longer, I obtain fewer bugs and the code is a lot easier to understand and test. 
 
 ##### How
 Interpret and build all the maps of [source category] to [destination category]
-For each seed of the list of seeds than need to be planted -> iterate over the maps to know to destination category for that type, which is used as input for the next map. 
+For each seed of the list of seeds that need to be planted -> iterate over the maps to know the destination category for that type, which is used as input for the next map. 
 
-Once we have the "location" of each of the seeds (simply move the initial number through the maps), find the minimum number.
+Once we have the "location" of each of the seeds (simply move the initial number through the maps): find the minimum number.
 
-### Part 2 considerations
-The complexity behind this problem is to not iterate over the numbers in the range pairs as those are huge ranges. Instead, we should find a good algorithm that deletes overlaping ranges and/or descards parts of the range making use of the idea to always obtain the lowest number in the range (meaning that at some point we know we can stop working on that range). 
+##### Part 2 considerations
+The complexity behind this part is to not iterate over the numbers in the range pairs as those are huge ranges. Instead, we should find a good algorithm that deletes overlaping ranges and/or discards parts of the range making use of the idea to always obtain the lowest number in the range (meaning that at some point we know we can stop working on that range to avoid doing unnecessary work). 
 
-Nevertheless, as I am doing this for fun and to practice my Go and Vim skills, I developed a brute force solution that makes use of concurrency primitives in Go, like channels and waitgroups. So 
+As I am doing this for fun and to practice my Go and Vim skills, I developed a brute force solution that makes use of concurrency primitives in Go, like channels and waitgroups. So what I am doing is breaking the ranges into samller ones given a variable that is parameterized as a CLI flag.What we do is process each subrange in a different Go routine.
 
+We also execute the unit tests of day5_part2_concurrent_test.go in parallel with good results: all tests run in arround 118 seconds.
 
+##### How to execute a specific test function
+```
+go test -timeout 1h -run ^<TestName>$ github.com/AldoFusterTurpin/AdventOfCode-2023/<folder_name>
+```
+
+For example:
+```
+go test -timeout 1h -run ^TestGetLowestLocationOfSeedPairsConcurrent$ github.com/AldoFusterTurpin/AdventOfCode-2023/day5
+```
+
+##### How to execute the program
+When you are on the "day5" folder, first build the binary: go build
+
+After that, you can execute the binary with the --help flag to see the available options:
+```
+./day5 --help
+Usage of ./day5:
+  -fileName string
+        Provide an input file name from the day5/input_files/ folder (default "input")
+  -rangePairs int
+        Provide the number of range pairs you want to have (to break range pairs into smaller ones).  Use -1 to not break ranges. (default -1)
+```
+Example of some executions:
+
+./day5 -fileName sample -rangePairs -1
+
+./day5 -fileName input -rangePairs 10000
 
 ### Useful links
 [Runes in Go](https://exercism.org/tracks/go/concepts/runes)
+
 [Go embed package](https://pkg.go.dev/embed)
+
+[Subtests](https://pkg.go.dev/testing@master#hdr-Subtests_and_Sub_benchmarks)

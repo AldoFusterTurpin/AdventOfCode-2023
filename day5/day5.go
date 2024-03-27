@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -10,36 +11,61 @@ import (
 	"unicode"
 )
 
-// desiredNumberOfRangePairs contains the desired number of range pairs we want our input to be broken into.
+// desiredNumberOfRanges contains the desired number of times we want to break the range pairs.
 // It is used to break the ranges into samller ones as we will execute each range in a different Go routine to
-// sepped up the whole process.
+// speed up the process.
 //
-// The results are really impressive, we can process the "input.txt" in a little bit more than
-// one minute, and it contains really big ranges. When working in Go, 1 OS Thread can be handling many Go gorutines
+// If desiredNumberOfRanges is less than 0, we will not break the ranges into smaller ones (when the ranges are small, we
+// don't want to break them into smaller ones as it is not useful, like in the "sample.txt").
+// For "input.txt" a good number is something close to 10_000 (check "notes.txt")
+// Ideally we could decide this variable at runtime, but this is a simplification and we pass the value
+// as a CLI flag. Nevertheless, breakRangesIntoSmallerOnes() in day5_part2_concurrent.go will not break the ranges
+// if they don't have a minimum length. This prevents the program from providing a wrong result when the ranges are really small.
+// So even if we specify desiredNumberOfRanges the progra will be breaking ranges at maximum of that many times, if the ranges are small
+// it will simply skip the breaking part.
+//
+// The results are really good, we can process the "input.txt" in a little bit more than
+// one minute, and it contains really big ranges. When working in Go, 1 OS Thread can handle many Go gorutines
 // (so the mapping is not 1 Thread -> 1 goroutine, it is 1 Thread -> n goroutines),
 // This is something the Go runtime is responsible of.
 // I simply love Go, for its concurrency model and for many other reasons.
-//
-// If desiredNumberOfRangePairs is less than 0, we will not break the ranges into smaller ones (when the ranges are small, we
-// don't want to break them into smaller ones as it is not useful, like in the "sample.txt").
-// For "input.txt" a good number is something close to 10_000 (check "notes.txt")
-// Ideally we could decide this variable at runtime, but this is a simplification.
-const desiredNumberOfRangePairs = 10_000
 
 var (
 	multipleSpacesRegex = regexp.MustCompile(`\s+`)
 )
 
+type cliParams struct {
+	inputFileName         string
+	desiredNumberOfRanges int
+}
+
+func getCliParams() cliParams {
+	inputFileName := flag.String("fileName", "input", "Provide an input file name from the day5/input_files/ folder")
+	desiredNumberOfRanges := flag.Int("rangePairs", -1, "Provide the number of range pairs you want to have (to break range pairs into smaller ones).  Use -1 to not break ranges.")
+
+	flag.Parse()
+
+	cliParams := cliParams{
+		inputFileName:         *inputFileName,
+		desiredNumberOfRanges: *desiredNumberOfRanges,
+	}
+	return cliParams
+}
+
 func main() {
 	folder := "input_files"
-	fileName := "input"
+
+	cliParams := getCliParams()
+	fileName := cliParams.inputFileName
+	desiredNumberOfRanges := cliParams.desiredNumberOfRanges
+
 	fileExtension := ".txt"
 	fileContent, err := os.ReadFile(folder + "/" + fileName + fileExtension)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sum := GetLowestLocationOfSeedPairsConcurrent(string(fileContent), desiredNumberOfRangePairs)
+	sum := GetLowestLocationOfSeedPairsConcurrent(string(fileContent), desiredNumberOfRanges)
 	fmt.Printf("lowest location of range of seed pairs is %v\n", sum)
 }
 

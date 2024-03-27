@@ -79,8 +79,8 @@ func (a Almanac) getLowestLocationOfSeedPairsConcurrent(desiredNumberOfRangePair
 		wg.Wait()
 
 		// it is safe to close the channel as all the workers have finished (because we have reached the wg.Wait()).
-		// If we don't close it here, we should use a counter of how many workers are still writing, the mutex
-		// already does that.Simpler.
+		// If we don't close it here, we should use a counter of how many workers are still writing, the waitgroup
+		// already does that in a simpler way.
 		close(resChannel)
 	}()
 
