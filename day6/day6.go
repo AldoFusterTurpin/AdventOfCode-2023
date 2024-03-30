@@ -18,10 +18,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	fileContent := string(fileContentBytes)
-	times, distances := processFileContent(fileContent)
+	partTwo := true
+
+	times, distances := processFileContent(fileContent, partTwo)
+	// fmt.Println(times)
+	// fmt.Println(distances)
+
 	result := getMultiplicationOfAllTheNumberOfWaysToBeatTheRecords(times, distances)
-	fmt.Println("result is", result)
+	fmt.Println("result is", result) // result is 30077773
 }
 
 func getMultiplicationOfAllTheNumberOfWaysToBeatTheRecords(times, distances []int) int {
@@ -54,13 +60,18 @@ func getNumberOfWaysWeCanBeatTheRecord(times []int, i int, distances []int) int 
 	return numberOfWaysWeCanBeatTheRecord
 }
 
-func processFileContent(fileContent string) (times, distances []int) {
+func processFileContent(fileContent string, partTwo bool) (times, distances []int) {
+	replaceWith := " "
+	if partTwo {
+		replaceWith = ""
+	}
+
 	lines := strings.Split(fileContent, "\n")
 
 	firstLine := lines[0]
 	multipleSpaces := regexp.MustCompile(`\s+`)
 
-	firstLine = multipleSpaces.ReplaceAllString(firstLine, " ")
+	firstLine = multipleSpaces.ReplaceAllString(firstLine, replaceWith)
 	firstLineSlice := strings.Split(firstLine, ":")
 
 	timesStr := strings.TrimSpace(firstLineSlice[1])
@@ -69,7 +80,7 @@ func processFileContent(fileContent string) (times, distances []int) {
 	times = fromSliceOfStringsToSliceOfInts(timesStrSlice)
 
 	secondLine := lines[1]
-	secondLine = multipleSpaces.ReplaceAllString(secondLine, " ")
+	secondLine = multipleSpaces.ReplaceAllString(secondLine, replaceWith)
 
 	secondLineSlice := strings.Split(secondLine, ":")
 
