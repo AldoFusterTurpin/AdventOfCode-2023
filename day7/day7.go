@@ -8,38 +8,17 @@ import (
 	"strings"
 )
 
-type HandType int
+type HandType string
 
 const (
-	FiveOfAind HandType = iota
-	FourOfAkind
-	FullHouse
-	ThreeOfAkind
-	TwoPair
-	OnePair
-	HighCard
+	FiveOfAKind  = "FiveOfAKind"
+	FourOfAkind  = "FourOfAkind"
+	FullHouse    = "FullHouse"
+	ThreeOfAkind = "ThreeOfAkind"
+	TwoPair      = "TwoPair"
+	OnePair      = "OnePair"
+	HighCard     = "HighCard"
 )
-
-func (h HandType) String() string {
-	switch h {
-	case FiveOfAind:
-		return "FiveOfAind"
-	case FourOfAkind:
-		return "FourOfAkind"
-	case FullHouse:
-		return "FullHouse"
-	case ThreeOfAkind:
-		return "ThreeOfAkind"
-	case TwoPair:
-		return "TwoPair"
-	case OnePair:
-		return "OnePair"
-	case HighCard:
-		return "HighCard"
-	default:
-		return "unknown"
-	}
-}
 
 type Hand struct {
 	cards    string
@@ -47,17 +26,54 @@ type Hand struct {
 }
 
 func (h *Hand) setHandType() {
+	// key: letter
+	// value: how many times it appears in cards
+	m := make(map[rune]int)
+
 	for _, r := range h.cards {
-		fmt.Print(string(r))
+		m[r]++
 	}
-	fmt.Println("\n__________________")
-	h.handType = 0
+	if len(m) == 1 {
+		h.handType = FiveOfAKind
+		return
+	}
+	if len(m) == 4 {
+		h.handType = OnePair
+		return
+	}
+	if len(m) == 5 {
+		h.handType = HighCard
+		return
+	}
+	for _, v := range m {
+		if v == 4 {
+			h.handType = FourOfAkind
+			return
+		}
+		// where three cards have the same label
+		if v == 3 {
+			// and the remaining two cards share a different label
+			if len(m) == 2 {
+				h.handType = FullHouse
+				return
+			}
+			if len(m) == 3 {
+				h.handType = ThreeOfAkind
+				return
+			}
+		}
+		if v == 2 {
+			if len(m) == 3 {
+				h.handType = TwoPair
+				return
+			}
+		}
+	}
 }
 
 func NewHand(cards string) *Hand {
 	h := &Hand{cards: cards}
 	h.setHandType()
-
 	return h
 }
 
@@ -96,7 +112,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(handsWithBids)
+	fmt.Printf("handsWithBids: %+v", handsWithBids)
 	// fmt.Println("result is", result)
 }
 
