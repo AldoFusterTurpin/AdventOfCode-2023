@@ -26,6 +26,28 @@ const (
 	HighCard     = "HighCard"
 )
 
+// 0 is strongest
+// n -1 is weakest
+func (h HandType) getRank() int {
+	switch h {
+	case FiveOfAKind:
+		return 0
+	case FourOfAkind:
+		return 1
+	case FullHouse:
+		return 2
+	case ThreeOfAkind:
+		return 3
+	case TwoPair:
+		return 4
+	case OnePair:
+		return 5
+	case HighCard:
+		return 6
+	}
+	return -1
+}
+
 type Hand struct {
 	cards    string
 	handType HandType
@@ -120,37 +142,15 @@ func (o ByStrength) Swap(i, j int) {
 // where the weakest hand gets rank 1, the second-weakest hand gets rank 2,
 // and so on up to the strongest hand. So Less should return true when card[i] is weaker than card[j]
 func (b ByStrength) Less(left, right int) bool {
-	// return true when let is weaker than right
-	// I know this can be refactored to use indexes for the type of Hand and just compare the order of
-	// the indexes instead of comparing that much cases. I want the test green first :)
-	leftHandType := b[left].hand.handType
-	rightHandType := b[right].hand.handType
-
-	if leftHandType == rightHandType {
+	// Return true when left is weaker than right.
+	// Refactored to use rank integer and comparison for simplicity (compare against previous commit if interested in the diff)
+	leftHandRank := b[left].hand.handType.getRank()
+	rightHandRank := b[right].hand.handType.getRank()
+	if leftHandRank == rightHandRank {
 		return b.isLeftHandWeakerThanRightHand(left, right)
 	}
-	if rightHandType == FiveOfAKind {
-		return true
-	}
-	if leftHandType == HighCard {
-		return true
-	}
-	if leftHandType == OnePair && rightHandType != HighCard {
-		return true
-	}
-	if leftHandType == TwoPair && rightHandType != OnePair && rightHandType != HighCard {
-		return true
-	}
-	if leftHandType == ThreeOfAkind && rightHandType != TwoPair && rightHandType != OnePair && rightHandType != HighCard {
-		return true
-	}
-	if leftHandType == FullHouse && rightHandType != ThreeOfAkind && rightHandType != TwoPair && rightHandType != OnePair && rightHandType != HighCard {
-		return true
-	}
-	if leftHandType == FourOfAkind && rightHandType != FullHouse && rightHandType != ThreeOfAkind && rightHandType != TwoPair && rightHandType != OnePair && rightHandType != HighCard {
-		return true
-	}
-	return false
+	return leftHandRank > rightHandRank
+
 }
 
 func (b ByStrength) isLeftHandWeakerThanRightHand(left, right int) bool {
@@ -216,7 +216,6 @@ func main() {
 	// fmt.Println("result is", result)
 }
 
-// 32T3K 765
 func processFileContent(fileContent string) ([]HandWithBid, error) {
 	var handsWithBids []HandWithBid
 	lines := strings.Split(fileContent, "\n")
