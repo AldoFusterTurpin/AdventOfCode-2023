@@ -1,6 +1,9 @@
 package main
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 // A hand consists of five cards labeled one of A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, or 2.
 // The relative strength of each card follows this order, where A is the highest and 2 is the lowest.
@@ -9,13 +12,13 @@ var cardsSortedByStrength = []rune{'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', 
 type HandType string
 
 const (
-	FiveOfAKind  = "FiveOfAKind"
-	FourOfAkind  = "FourOfAkind"
-	FullHouse    = "FullHouse"
-	ThreeOfAkind = "ThreeOfAkind"
-	TwoPair      = "TwoPair"
-	OnePair      = "OnePair"
-	HighCard     = "HighCard"
+	FiveOfAKind  HandType = "FiveOfAKind"
+	FourOfAkind  HandType = "FourOfAkind"
+	FullHouse    HandType = "FullHouse"
+	ThreeOfAkind HandType = "ThreeOfAkind"
+	TwoPair      HandType = "TwoPair"
+	OnePair      HandType = "OnePair"
+	HighCard     HandType = "HighCard"
 )
 
 // 0 is strongest
@@ -114,4 +117,23 @@ func NewHandWithBid(cards, bid string) (*HandWithBid, error) {
 	}
 
 	return handWithBid, nil
+}
+
+func getHandsWithBidsFromFileContent(fileContent string) ([]HandWithBid, error) {
+	var handsWithBids []HandWithBid
+	lines := strings.Split(fileContent, "\n")
+	for _, line := range lines {
+		line = strings.Trim(line, " ")
+		lineSplitted := strings.Split(line, " ")
+
+		cards := lineSplitted[0]
+		bid := lineSplitted[1]
+		handWithBid, err := NewHandWithBid(cards, bid)
+		if err != nil {
+			return nil, err
+		}
+		handsWithBids = append(handsWithBids, *handWithBid)
+	}
+
+	return handsWithBids, nil
 }

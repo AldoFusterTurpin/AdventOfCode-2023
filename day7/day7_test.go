@@ -104,7 +104,7 @@ QQQJA 483`,
 
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			got, err := processFileContent(tt.fileContent)
+			got, err := getHandsWithBidsFromFileContent(tt.fileContent)
 			if err != nil && !tt.wantErr {
 				t.Fatalf("got error = %v, but wantErr %v", err, tt.wantErr)
 				return
@@ -208,7 +208,7 @@ func Test_orderByStrength(t *testing.T) {
 
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			sortByStrength(tt.handWithBid)
+			sortHandsWithBidsByStrength(tt.handWithBid)
 			if !reflect.DeepEqual(tt.wantHandWithBid, tt.handWithBid) {
 				t.Errorf("expected %v, but got %v", tt.wantHandWithBid, tt.handWithBid)
 			}

@@ -6,7 +6,7 @@ import (
 	"sort"
 )
 
-func sortByStrength(hs []HandWithBid) {
+func sortHandsWithBidsByStrength(hs []HandWithBid) {
 	sort.Sort(ByStrength(hs))
 }
 
