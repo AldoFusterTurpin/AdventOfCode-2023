@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
 	folder := "input_files"
-	fileName := "sample"
+	fileName := "input"
 	fileExtension := ".txt"
 
 	fileContentBytes, err := os.ReadFile(folder + "/" + fileName + fileExtension)
@@ -17,11 +18,13 @@ func main() {
 	}
 
 	fileContent := string(fileContentBytes)
+	fileContent = strings.TrimSpace(fileContent)
 
-	handsWithBids, err := getHandsWithBidsFromFileContent(fileContent)
+	hs, err := getHandsWithBidsFromFileContent(fileContent)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("handsWithBids: %+v", handsWithBids)
-	// fmt.Println("result is", result)
+	result := GetTotalWinnings(hs)
+	// fmt.Printf("hs: %+v", hs)
+	fmt.Println("result is", result)
 }

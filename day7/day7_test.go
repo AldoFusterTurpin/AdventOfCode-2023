@@ -48,7 +48,7 @@ func TestNewHand(t *testing.T) {
 	}
 }
 
-func Test_processFileContent(t *testing.T) {
+func Test_getHandsWithBidsFromFileContent(t *testing.T) {
 	type testCase struct {
 		fileContent     string
 		wantHandWithBid []HandWithBid
@@ -211,6 +211,63 @@ func Test_orderByStrength(t *testing.T) {
 			sortHandsWithBidsByStrength(tt.handWithBid)
 			if !reflect.DeepEqual(tt.wantHandWithBid, tt.handWithBid) {
 				t.Errorf("expected %v, but got %v", tt.wantHandWithBid, tt.handWithBid)
+			}
+		})
+	}
+}
+
+func TestGetTotalWinnings(t *testing.T) {
+	type testCase struct {
+		hs   []HandWithBid
+		want int
+	}
+	tests := []testCase{
+		{
+			hs: []HandWithBid{
+				{
+					hand: Hand{
+						cards:    "32T3K",
+						handType: OnePair,
+					},
+					bid: 765,
+				},
+				{
+					hand: Hand{
+						cards:    "KTJJT",
+						handType: TwoPair,
+					},
+					bid: 220,
+				},
+				{
+					hand: Hand{
+						cards:    "KK677",
+						handType: TwoPair,
+					},
+					bid: 28,
+				},
+				{
+					hand: Hand{
+						cards:    "T55J5",
+						handType: ThreeOfAkind,
+					},
+					bid: 684,
+				},
+				{
+					hand: Hand{
+						cards:    "QQQJA",
+						handType: ThreeOfAkind,
+					},
+					bid: 483,
+				},
+			},
+			want: 6440,
+		},
+	}
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			got := GetTotalWinnings(tt.hs)
+			if got != tt.want {
+				t.Errorf("got %v, but want %v", got, tt.want)
 			}
 		})
 	}
