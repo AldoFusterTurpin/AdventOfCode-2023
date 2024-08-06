@@ -6,33 +6,38 @@ import (
 	"sort"
 )
 
+// A hand consists of five cards labeled one of A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, or 2.
+// The relative strength of each card follows this order, where A is the highest and 2 is the lowest.
+var cardsSortedByStrength = []rune{'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'}
+
 func sortHandsWithBidsByStrength(hs []HandWithBid) {
 	sort.Sort(ByStrength(hs))
 }
 
 type ByStrength []HandWithBid
 
-func (o ByStrength) Len() int {
-	return len(o)
+func (b ByStrength) Len() int {
+	return len(b)
 }
 
-func (o ByStrength) Swap(i, j int) {
-	o[i], o[j] = o[j], o[i]
+func (b ByStrength) Swap(i, j int) {
+	b[i], b[j] = b[j], b[i]
 }
 
 // Less implements the function to order the []HandWithBid based on the rank,
 // where the weakest hand gets rank 1, the second-weakest hand gets rank 2,
-// and so on up to the strongest hand. So Less should return true when card[i] is weaker than card[j]
-func (b ByStrength) Less(left, right int) bool {
-	// Return true when left is weaker than right.
-	// Refactored to use rank integer and comparison for simplicity (compare against previous commit if interested in the diff)
-	leftHandRank := b[left].hand.handType.getRank()
-	rightHandRank := b[right].hand.handType.getRank()
+// and so on up to the strongest hand.
+// Less should return true when card[i] is weaker than card[j].
+func (b ByStrength) Less(i, j int) bool {
+	// Refactored (commit: 5f441c351dc8273d725777990eff05402ccdeb31) to use rank integer and comparison
+	// for simplicity (compare against previous commit if interested in the diff).
+	leftHandRank := b[i].hand.handType.getRank()
+	rightHandRank := b[j].hand.handType.getRank()
 	if leftHandRank == rightHandRank {
-		return b.isLeftHandWeakerThanRightHand(left, right)
+		// When hands have same type, we evaluate the individual cards.
+		return b.isLeftHandWeakerThanRightHand(i, j)
 	}
-	return leftHandRank > rightHandRank
-
+	return leftHandRank < rightHandRank
 }
 
 func (b ByStrength) isLeftHandWeakerThanRightHand(left, right int) bool {
@@ -52,10 +57,9 @@ func (b ByStrength) isLeftHandWeakerThanRightHand(left, right int) bool {
 	for index := 0; index < nCardsLeft; index++ {
 		leftCard := b[left].hand.cards[index]
 		rightCard := b[right].hand.cards[index]
-		if leftCard == rightCard {
-			continue
+		if leftCard != rightCard {
+			return b.isLeftCardWeakerThanRightCard(rune(leftCard), rune(rightCard))
 		}
-		return b.isLeftCardWeakerThanRightCard(rune(leftCard), rune(rightCard))
 	}
 
 	// according to the problem statement, we should never reach this point
@@ -63,7 +67,8 @@ func (b ByStrength) isLeftHandWeakerThanRightHand(left, right int) bool {
 	return false
 }
 
-// isLeftCardWeakerThanRightCard returns true if leftCard is stronger than rightCard, otherwise returns false.
+// isLeftCardWeakerThanRightCard returns true if the individual leftCard is
+// weaker than rightCard, otherwise returns false.
 func (b ByStrength) isLeftCardWeakerThanRightCard(leftCard, rightCard rune) bool {
 	leftCardIndex := slices.Index(cardsSortedByStrength, leftCard)
 	if leftCardIndex == -1 {

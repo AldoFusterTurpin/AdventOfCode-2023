@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+// Part2: 252898370 correct answer
+
+const part2 = true
+
 func main() {
 	folder := "input_files"
 	fileName := "input"
@@ -17,14 +21,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fileContent := string(fileContentBytes)
-	fileContent = strings.TrimSpace(fileContent)
+	inputString := string(fileContentBytes)
+	inputString = strings.TrimSpace(inputString)
 
-	hs, err := getHandsWithBidsFromFileContent(fileContent)
+	result := getResult(inputString)
+	fmt.Println("result is", result)
+}
+
+func getResult(s string) int {
+	if part2 {
+		hs, err := getHandsWithBidsFromFileContentPart2(s)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return GetTotalWinningsPart2(hs)
+	}
+
+	hs, err := getHandsWithBidsFromFileContent(s)
 	if err != nil {
 		log.Fatal(err)
 	}
-	result := GetTotalWinnings(hs)
-	// fmt.Printf("hs: %+v", hs)
-	fmt.Println("result is", result)
+	return GetTotalWinnings(hs)
 }
